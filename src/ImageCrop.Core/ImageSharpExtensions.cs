@@ -13,6 +13,25 @@ public static class ImageSharpExtensions
 {
     public static Image CropWithAnchor(this Image image, string ratio, AnchorMode anchor)
     {
+        // === 新增：左右平分 ===
+        if (ratio == "half")
+        {
+            return image.Clone(ctx =>
+            {
+                var size = ctx.GetCurrentSize();
+                int halfWidth = size.Width / 2;
+
+                int x = anchor switch
+                {
+                    AnchorMode.Left => 0,
+                    AnchorMode.Right => size.Width - halfWidth,
+                    _ => (size.Width - halfWidth) / 2   // 居中
+                };
+
+                ctx.Crop(new Rectangle(x, 0, halfWidth, size.Height));
+            });
+        }
+
         var parts = ratio.Split(':');
         float targetRatio = float.Parse(parts[0]) / float.Parse(parts[1]);
 
